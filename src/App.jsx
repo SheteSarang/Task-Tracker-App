@@ -1,7 +1,10 @@
 import { useState,useEffect } from "react";
-import {TodoProvider} from './contexts'
+import {TodoProvider} from './contexts/TodoContext'
 import "./App.css";
-import { TodoForm } from "./components";
+import {  TodoItem } from "./components";
+import { TodoForm } from './components';
+
+
 
 function App() {
   const [todos,setTodos] = useState([])  //todos which are coming from the context, we are storing it in variable todos and updating it on Ui. So setTodos
@@ -11,16 +14,26 @@ function App() {
                                   //Date.now()-->Just a random id generated. Concept of destructuring- ...todo spreads all the properties from the todo object (like todo: "New Task", completed: false) into a new object.It’s like saying, "Take all the properties of the new todo and put them into this new object."...prev spreads all the previous todos (the old list of tasks) into the new array.It’s like saying, "Take all the tasks I already have and add them after the new one."
                                   ////बाहेर boxes of todo, open it up and add a new todo(with new ID inside that new todo.)So again the inside object-open it up.
 
-    const updateTodo = (id, todo) =>{
-      //कोन्सा ID ,कोन्सा update हो? लूप लगाओ todos array पे, आईडी मैच करलो
-      setTodos((prev)=>prev.map((prevTodo)=>(prevTodo.id === id ? todo : prevTodo)))
-    }
+      
+      
+    //   const updateTodo = (id, todo) =>{
+    //   //कोन्सा ID ,कोन्सा update हो? लूप लगाओ todos array पे, आईडी मैच करलो 
+    //   setTodos((prev)=>prev.map((prevTodo)=>(prevTodo.id === id ? todo : prevTodo)))
+    // }
+    
+    const updateTodo = (id, updatedFields) => {
+      setTodos((prev) =>
+        prev.map((prevTodo) =>
+          prevTodo.id === id ? { ...prevTodo, ...updatedFields } : prevTodo
+        )
+      );
+    };
     const deleteTodo = (id) => {
       setTodos((prev) => prev.filter((todo)=>todo.id !== id))
     }
 
     const toggleComplete = (id) => {  //change the ture /false value to toggle the colour
-      setTodos((prev) => prev.map((prevTodo)=> prevTodo===id ? {...prevTodo, completed: !prevTodo.completed} : prevTodo ))
+      setTodos((prev) => prev.map((prevTodo)=> prevTodo.id===id ? {...prevTodo, completed: !prevTodo.completed} : prevTodo ))
     }
   
     //Getting todos from local storage. After loading the app,there might be some todos already present.Since no backend nd db, we can get those from local storage
@@ -31,6 +44,7 @@ function App() {
       }
     },[])
     useEffect(()=>{
+      console.log("Updated todos:", todos);
       localStorage.setItem("todos", JSON.stringify(todos))
     },[todos])
     
@@ -46,6 +60,11 @@ function App() {
           <div className="mb-4"><TodoForm /></div>
           <div className="flex flex-wrap gap-y-3">
             {/*Loop and Add TodoItem here */}
+            {todos.map((todo)=>(
+              <div key={todo.id} className= 'w-full'>
+                  <TodoItem todo={todo} />
+              </div>
+            ))}
           </div>
         </div>
       </div>
